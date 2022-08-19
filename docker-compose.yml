@@ -1,0 +1,47 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    tty: true
+    ports:
+      - 5432:5432
+    volumes:
+      - /pg_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=digitalBank
+      - POSTGRES_USER=root
+      - POSTGRES_PASSWORD=example
+    networks:
+      - digital-bank
+
+  app:
+    build: .
+    tty: true
+    restart: on-failure
+    volumes:
+      - .:/app/
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+    networks:
+      - digital-bank
+      
+  pgadmin:
+    image: dpage/pgadmin4
+    tty: true
+    depends_on:
+      - db
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@yanwr.com
+      - PGADMIN_DEFAULT_PASSWORD=123456
+    ports:
+      - "9000:80"
+    networks:
+      - digital-bank
+
+networks:
+  digital-bank:
+    driver: bridge
