@@ -2,6 +2,7 @@ package main
 
 import (
 	"yanwr/digital-bank/config"
+	"yanwr/digital-bank/database"
 )
 
 func init() {
@@ -9,8 +10,8 @@ func init() {
 }
 
 func main() {
-	println("Digital Bank works !!")
-	config.ConnectDB()
+	database.LoadConnectionDB()
 
-	// config.ConnectDB().Create(&models.Account{})
+	server := config.CreateServer()
+	server.LoadRoutesAndRunServer()
 }

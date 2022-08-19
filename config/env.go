@@ -15,6 +15,8 @@ const (
 	DB_TZ           = "DB_TZ"
 	DB_TYPE         = "DB_TYPE"
 	DB_AUTO_MIGRATE = "DB_AUTO_MIGRATE"
+
+	SERVER_PORT = "SERVER_PORT"
 )
 
 func LoadEnv() {
