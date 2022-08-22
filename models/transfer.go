@@ -9,7 +9,7 @@ import (
 
 type Transfer struct {
 	gorm.Model
-	Id                   string    `json:"id" gorm:"primaryKey" valid:"required"`
+	Id                   uint64    `json:"id" gorm:"primaryKey" valid:"required"`
 	AccountOriginId      int       `json:"account_origin_id" valid:"notnull"`
 	AccountDestinationId int       `json:"account_destination_id" valid:"notnull"`
 	Amount               float64   `json:"amount" valid:"notnull"`
