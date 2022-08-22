@@ -3,6 +3,7 @@ package routes
 import (
 	"yanwr/digital-bank/controllers"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -22,6 +23,7 @@ func NewRoutes(conDB *gorm.DB) IRoutes {
 }
 
 func (r *Routes) LoadRoutes(router *gin.Engine) *gin.Engine {
+	router = ConfigCORS(router)
 	main := router.Group("app")
 	{
 		accounts := main.Group("accounts")
@@ -36,5 +38,19 @@ func (r *Routes) LoadRoutes(router *gin.Engine) *gin.Engine {
 		// 	transfers.POST("/", controllers.CreateTransfersTo)
 		// }
 	}
+	return router
+}
+
+func ConfigCORS(router *gin.Engine) *gin.Engine {
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:8080"},
+		AllowMethods:     []string{"GET", "POST"},
+		AllowHeaders:     []string{"Content-Type"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		AllowOriginFunc: func(origin string) bool {
+			return origin == "http://localhost:8080"
+		},
+	}))
 	return router
 }
