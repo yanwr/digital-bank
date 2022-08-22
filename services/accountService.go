@@ -66,11 +66,11 @@ func (aS *AccountService) ThereIsDuplicateAccounts(cpf string) *exceptions.Stand
 	if err := models.IsCpfValid(cpf); err != nil {
 		return exceptions.ThrowBadRequestError("invalid CPF")
 	}
-	thereIs, err := aS.accountRepository.ExistsByCpf(cpf)
+	account, err := aS.accountRepository.FindByCpf(cpf)
 	if err != nil {
 		return exceptions.ThrowInternalServerError("error to validade if there is account with the same CPF")
 	}
-	if thereIs {
+	if account != nil {
 		return exceptions.ThrowBadRequestError("already exists account with the same CPF")
 	}
 	return nil

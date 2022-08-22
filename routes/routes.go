@@ -14,18 +14,26 @@ type IRoutes interface {
 
 type Routes struct {
 	accountController controllers.IAccountController
+	authController    controllers.IAuthController
 }
 
 func NewRoutes(conDB *gorm.DB) IRoutes {
 	return &Routes{
 		accountController: controllers.NewAccountController(conDB),
+		authController:    controllers.NewAuthController(conDB),
 	}
 }
 
 func (r *Routes) LoadRoutes(router *gin.Engine) *gin.Engine {
 	router = ConfigCORS(router)
+
 	main := router.Group("app")
 	{
+		auth := main.Group("login")
+		{
+			auth.POST("/", r.authController.Login)
+		}
+
 		accounts := main.Group("accounts")
 		{
 			accounts.POST("/", r.accountController.CreateAccount)

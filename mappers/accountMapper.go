@@ -25,12 +25,11 @@ func (aM *AccountMapper) ToDtos(accounts []*models.Account) []*dtos.AccountRespo
 }
 
 func (aM *AccountMapper) ToDto(account *models.Account) *dtos.AccountResponseDTO {
-	var accountDto dtos.AccountResponseDTO
-
-	accountDto.Balance = account.Balance
-	accountDto.Cpf = account.Cpf
-	accountDto.Name = account.Name
-	accountDto.Id = account.Id
-	accountDto.CreatedAt = account.CreatedAt
-	return &accountDto
+	return &dtos.AccountResponseDTO{
+		Id:        account.Id,
+		Cpf:       account.Cpf,
+		Name:      account.Name,
+		Balance:   account.Balance,
+		CreatedAt: account.CreatedAt,
+	}
 }
