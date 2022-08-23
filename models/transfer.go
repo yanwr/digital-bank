@@ -3,25 +3,25 @@ package models
 import (
 	"time"
 
-	"github.com/asaskevich/govalidator"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type Transfer struct {
 	gorm.Model
-	Id                   uint64    `json:"id" gorm:"primaryKey" valid:"required"`
-	AccountOriginId      int       `json:"account_origin_id" valid:"notnull"`
-	AccountDestinationId int       `json:"account_destination_id" valid:"notnull"`
-	Amount               float64   `json:"amount" valid:"notnull"`
-	CreatedAt            time.Time `json:"created_at" valid:"required"`
-	UpdatedAt            time.Time `json:"updated_at" valid:"required"`
-	DeletedAt            time.Time `json:"deleted_at" valid:"required"`
+	Id                   string    `json:"id" gorm:"type:uuid;primaryKey"`
+	AccountOriginId      string    `json:"account_origin_id"`
+	AccountDestinationId string    `json:"account_destination_id"`
+	Amount               float64   `json:"amount"`
+	CreatedAt            time.Time `json:"created_at"`
 }
 
-func (transfer *Transfer) isValid() error {
-	_, err := govalidator.ValidateStruct(transfer)
-	if err != nil {
-		return err
+func NewTransfer(accountDestinationId string, accountOriginId string, amout float64) *Transfer {
+	return &Transfer{
+		Id:                   uuid.New().String(),
+		AccountOriginId:      accountOriginId,
+		AccountDestinationId: accountDestinationId,
+		Amount:               amout,
+		CreatedAt:            time.Now(),
 	}
-	return nil
 }

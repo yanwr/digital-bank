@@ -8,10 +8,11 @@ import (
 )
 
 type IAccountRepository interface {
-	ExistsByCpf(cpf string) (bool, error)
+	FindByCpf(cpf string) (*models.Account, error)
 	FindById(id string) (*models.Account, error)
 	FindAll() ([]*models.Account, error)
 	Create(account *models.Account) error
+	Update(account *models.Account) error
 }
 
 type AccountRepository struct {
@@ -24,20 +25,20 @@ func NewAccountRepository(conDB *gorm.DB) IAccountRepository {
 	}
 }
 
-func (aR *AccountRepository) ExistsByCpf(cpf string) (bool, error) {
+func (aR *AccountRepository) FindByCpf(cpf string) (*models.Account, error) {
 	var account *models.Account
 	if err := aR.connectionDB.Find(&account, "cpf = ?", cpf).Error; err != nil {
-		return false, err
+		return nil, err
 	}
 	if account == nil {
-		return false, nil
+		return nil, nil
 	}
-	return true, nil
+	return account, nil
 }
 
 func (aR *AccountRepository) FindById(id string) (*models.Account, error) {
 	var account *models.Account
-	aR.connectionDB.First(&account, id)
+	aR.connectionDB.First(&account, "id = ?", id)
 	if account == nil {
 		return nil, fmt.Errorf("not found Account with id = %s", id)
 	}
@@ -55,6 +56,14 @@ func (aR *AccountRepository) FindAll() ([]*models.Account, error) {
 
 func (aR *AccountRepository) Create(account *models.Account) error {
 	err := aR.connectionDB.Create(account).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (aR *AccountRepository) Update(account *models.Account) error {
+	err := aR.connectionDB.Save(account).Error
 	if err != nil {
 		return err
 	}
