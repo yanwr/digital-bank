@@ -1,7 +1,6 @@
 package services
 
 import (
-	"log"
 	"yanwr/digital-bank/dtos"
 	"yanwr/digital-bank/exceptions"
 	"yanwr/digital-bank/mappers"
@@ -15,7 +14,9 @@ type IAccountService interface {
 	FindAll() ([]*dtos.AccountResponseDTO, *exceptions.StandardError)
 	FindById(id string) (*dtos.AccountResponseDTO, *exceptions.StandardError)
 	CreateAccount(accountDto dtos.AccountRequestDTO) (*dtos.AccountResponseDTO, *exceptions.StandardError)
+	UpdateAccount(accountDto *dtos.AccountResponseDTO) (*dtos.AccountResponseDTO, *exceptions.StandardError)
 	ThereIsDuplicateAccounts(cpf string) *exceptions.StandardError
+	HasEnoughBalance(balance float64, accountId string) *exceptions.StandardError
 }
 
 type AccountService struct {
@@ -51,27 +52,47 @@ func (aS *AccountService) CreateAccount(accountDto dtos.AccountRequestDTO) (*dto
 		return nil, errS
 	}
 
-	accout, err := models.NewAccount(accountDto.Name, accountDto.Cpf, accountDto.Secret)
+	accout, err := models.NewAccount(accountDto.Name, accountDto.Cpf, accountDto.Secret, accountDto.Balance)
 	if err != nil {
 		return nil, exceptions.ThrowBadRequestError("invalid data to create new Account")
 	}
 	if err := aS.accountRepository.Create(accout); err != nil {
-		log.Printf("Yan here 2 " + err.Error())
 		return nil, exceptions.ThrowInternalServerError("error to create new Account")
 	}
 	return aS.accountMapper.ToDto(accout), nil
 }
 
+func (aS *AccountService) UpdateAccount(accountDto *dtos.AccountResponseDTO) (*dtos.AccountResponseDTO, *exceptions.StandardError) {
+	account := aS.accountMapper.ToEntity(accountDto)
+	if err := aS.accountRepository.Update(account); err != nil {
+		return nil, exceptions.ThrowInternalServerError("error to update account")
+	}
+	return accountDto, nil
+}
+
 func (aS *AccountService) ThereIsDuplicateAccounts(cpf string) *exceptions.StandardError {
-	if err := models.IsCpfValid(cpf); err != nil {
-		return exceptions.ThrowBadRequestError("invalid CPF")
+	err := models.IsCpfValid(cpf)
+	if err != nil {
+		return exceptions.ThrowBadRequestError(err.Error())
 	}
 	account, err := aS.accountRepository.FindByCpf(cpf)
 	if err != nil {
 		return exceptions.ThrowInternalServerError("error to validade if there is account with the same CPF")
 	}
-	if account != nil {
+	if len(account.Id) > 0 {
 		return exceptions.ThrowBadRequestError("already exists account with the same CPF")
 	}
 	return nil
+}
+
+func (aS *AccountService) HasEnoughBalance(balance float64, accountId string) *exceptions.StandardError {
+	account, errS := aS.FindById(accountId)
+	if errS != nil {
+		return errS
+	}
+
+	if account.Balance >= balance {
+		return nil
+	}
+	return exceptions.ThrowBadRequestError("account origin does not have enough balance")
 }

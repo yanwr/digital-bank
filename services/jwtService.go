@@ -1,9 +1,9 @@
 package services
 
 import (
-	"fmt"
+	"errors"
 	"os"
-	"time"
+	"yanwr/digital-bank/dtos"
 	"yanwr/digital-bank/env"
 
 	"github.com/dgrijalva/jwt-go"
@@ -11,7 +11,7 @@ import (
 
 type IJwtService interface {
 	GenerateToken(accountId string) string
-	ValidateToken(tokenString string) (*jwt.Token, error)
+	ValidateToken(tokenString string) (*dtos.Payload, error)
 }
 
 type JwtService struct {
@@ -25,11 +25,11 @@ func NewJWTService() IJwtService {
 }
 
 func (jS *JwtService) GenerateToken(accountId string) string {
-	claims := &jwt.StandardClaims{
-		Id:        accountId,
-		ExpiresAt: time.Now().AddDate(1, 0, 0).Unix(),
+	payload, err := dtos.NewPayload(accountId)
+	if err != nil {
+		panic(err)
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, payload)
 	tokenString, err := token.SignedString([]byte(jS.secretKey))
 	if err != nil {
 		panic(err)
@@ -37,11 +37,28 @@ func (jS *JwtService) GenerateToken(accountId string) string {
 	return tokenString
 }
 
-func (jS *JwtService) ValidateToken(tokenString string) (*jwt.Token, error) {
-	return jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method %v", token.Header["alg"])
+func (jS *JwtService) ValidateToken(tokenString string) (*dtos.Payload, error) {
+	keyFunc := func(token *jwt.Token) (interface{}, error) {
+		_, ok := token.Method.(*jwt.SigningMethodHMAC)
+		if !ok {
+			return nil, errors.New("invalid token")
 		}
 		return []byte(jS.secretKey), nil
-	})
+	}
+
+	jwtToken, err := jwt.ParseWithClaims(tokenString, &dtos.Payload{}, keyFunc)
+	if err != nil {
+		verr, ok := err.(*jwt.ValidationError)
+		if ok && errors.Is(verr.Inner, errors.New("token has expired")) {
+			return nil, errors.New("token has expired")
+		}
+		return nil, errors.New("invalid token")
+	}
+
+	payload, ok := jwtToken.Claims.(*dtos.Payload)
+	if !ok {
+		return nil, errors.New("invalid token")
+	}
+
+	return payload, nil
 }

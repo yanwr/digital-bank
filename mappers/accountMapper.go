@@ -8,6 +8,7 @@ import (
 type IAccountMapper interface {
 	ToDtos(accounts []*models.Account) []*dtos.AccountResponseDTO
 	ToDto(account *models.Account) *dtos.AccountResponseDTO
+	ToEntity(accountDto *dtos.AccountResponseDTO) *models.Account
 }
 
 type AccountMapper struct{}
@@ -31,5 +32,15 @@ func (aM *AccountMapper) ToDto(account *models.Account) *dtos.AccountResponseDTO
 		Name:      account.Name,
 		Balance:   account.Balance,
 		CreatedAt: account.CreatedAt,
+	}
+}
+
+func (aM *AccountMapper) ToEntity(accountDto *dtos.AccountResponseDTO) *models.Account {
+	return &models.Account{
+		Id:        accountDto.Id,
+		Cpf:       accountDto.Cpf,
+		Name:      accountDto.Name,
+		Balance:   accountDto.Balance,
+		CreatedAt: accountDto.CreatedAt,
 	}
 }

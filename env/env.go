@@ -18,6 +18,10 @@ const (
 
 	JWT_SECRET  = "JWT_SECRET"
 	SERVER_PORT = "SERVER_PORT"
+
+	AUTHORIZATION_HEADER      = "Authorization"
+	AUTHORIZATION_HEADER_TYPE = "BEARER"
+	AUTHORIZATION_PAYLOAD     = "payload"
 )
 
 func LoadEnv() {

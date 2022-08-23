@@ -29,8 +29,9 @@ func NewAuthService(conDB *gorm.DB) IAuthService {
 }
 
 func (aS *AuthSerivce) IsCredentialValid(cpf string, secret string) (*dtos.AccountResponseDTO, *exceptions.StandardError) {
-	if err := models.IsCpfValid(cpf); err != nil {
-		return nil, exceptions.ThrowBadRequestError("invalid CPF")
+	err := models.IsCpfValid(cpf)
+	if err != nil {
+		return nil, exceptions.ThrowBadRequestError(err.Error())
 	}
 	account, err := aS.accountRepository.FindByCpf(cpf)
 	if err != nil {

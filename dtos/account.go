@@ -1,11 +1,14 @@
 package dtos
 
-import "time"
+import (
+	"time"
+)
 
 type AccountRequestDTO struct {
-	Name   string `json:"name"`
-	Cpf    string `json:"cpf"`
-	Secret string `json:"secret"`
+	Name    string  `json:"name"`
+	Cpf     string  `json:"cpf"`
+	Secret  string  `json:"secret"`
+	Balance float64 `json:"balance"`
 }
 
 type AccountResponseDTO struct {

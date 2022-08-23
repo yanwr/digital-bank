@@ -34,3 +34,11 @@ func ThrowNotFoundError(message string) *StandardError {
 		Error_Message: message,
 	}
 }
+
+func ThrowUnauthorizedError(message string) *StandardError {
+	return &StandardError{
+		Time:          time.Now(),
+		Status:        http.StatusUnauthorized,
+		Error_Message: message,
+	}
+}

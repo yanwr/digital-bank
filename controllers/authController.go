@@ -31,10 +31,12 @@ func (aC *AuthController) Login(c *gin.Context) {
 	err := c.BindJSON(&login)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, exceptions.ThrowBadRequestError("invalid data to login"))
+		return
 	}
 	accountDto, errS := aC.authService.IsCredentialValid(login.Cpf, login.Secret)
 	if err != nil {
 		c.AbortWithStatusJSON(errS.Status, errS)
+		return
 	}
 	generatedToken := aC.jwtService.GenerateToken(accountDto.Id)
 	c.JSON(http.StatusOK, dtos.LoginResponseDTO{Token: generatedToken})
