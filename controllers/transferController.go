@@ -37,7 +37,7 @@ func (tC *TransferController) IndexAllTransfersFromCurrentUser(c *gin.Context) {
 }
 
 func (tC *TransferController) CreateTransferTo(c *gin.Context) {
-	var transferDtoReq dtos.TransferRequestDTO
+	var transferDtoReq *dtos.TransferRequestDTO
 	err := c.BindJSON(&transferDtoReq)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, exceptions.ThrowBadRequestError("invalid data to create a transfer"))

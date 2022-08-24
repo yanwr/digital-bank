@@ -75,14 +75,11 @@ func (aS *AccountService) ThereIsDuplicateAccounts(cpf string) *exceptions.Stand
 	if err != nil {
 		return exceptions.ThrowBadRequestError(err.Error())
 	}
-	account, err := aS.accountRepository.FindByCpf(cpf)
-	if err != nil {
-		return exceptions.ThrowInternalServerError("error to validade if there is account with the same CPF")
+	account, _ := aS.accountRepository.FindByCpf(cpf)
+	if account == nil {
+		return nil
 	}
-	if len(account.Id) > 0 {
-		return exceptions.ThrowBadRequestError("already exists account with the same CPF")
-	}
-	return nil
+	return exceptions.ThrowBadRequestError("already exists account with the same CPF")
 }
 
 func (aS *AccountService) HasEnoughBalance(balance float64, accountId string) *exceptions.StandardError {

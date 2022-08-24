@@ -2,7 +2,6 @@ package services
 
 import (
 	"log"
-	"yanwr/digital-bank/dtos"
 	"yanwr/digital-bank/exceptions"
 	"yanwr/digital-bank/mappers"
 	"yanwr/digital-bank/models"
@@ -13,7 +12,7 @@ import (
 )
 
 type IAuthService interface {
-	IsCredentialValid(cpf string, Secret string) (*dtos.AccountResponseDTO, *exceptions.StandardError)
+	IsCredentialValid(cpf string, secret string) (string, *exceptions.StandardError)
 }
 
 type AuthSerivce struct {
@@ -28,23 +27,21 @@ func NewAuthService(conDB *gorm.DB) IAuthService {
 	}
 }
 
-func (aS *AuthSerivce) IsCredentialValid(cpf string, secret string) (*dtos.AccountResponseDTO, *exceptions.StandardError) {
+func (aS *AuthSerivce) IsCredentialValid(cpf string, secret string) (string, *exceptions.StandardError) {
 	err := models.IsCpfValid(cpf)
 	if err != nil {
-		return nil, exceptions.ThrowBadRequestError(err.Error())
+		return "", exceptions.ThrowBadRequestError(err.Error())
 	}
 	account, err := aS.accountRepository.FindByCpf(cpf)
 	if err != nil {
-		return nil, exceptions.ThrowInternalServerError("error to validade if there is account with the same CPF")
-	}
-	if len(account.Id) <= 0 {
-		return nil, exceptions.ThrowBadRequestError("invalid credential, account does not exist")
+		return "", exceptions.ThrowNotFoundError(err.Error())
 	}
 	comparedSecret := compareSecret(account.Secret, []byte(secret))
 	if account.Cpf == cpf && comparedSecret {
-		return aS.accountMapper.ToDto(account), nil
+		return account.Id, nil
 	}
-	return nil, exceptions.ThrowBadRequestError("invalid secret, please try again")
+
+	return "", exceptions.ThrowBadRequestError("invalid secret, please try again")
 }
 
 func compareSecret(hashedPwd string, plainSecret []byte) bool {

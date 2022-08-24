@@ -25,7 +25,7 @@ func NewTransferRepository(conDB *gorm.DB) ITransferRepository {
 func (tR *TransferRepository) FindAllByAccountId(accountId string) ([]*models.Transfer, error) {
 	var transfers []*models.Transfer
 	if err := tR.connectionDB.Find(&transfers, "account_origin_id = ?", accountId).Error; err != nil {
-		return nil, fmt.Errorf("error to find all transfers by accountId = ", accountId)
+		return nil, fmt.Errorf("error to find all transfers by accountId = %s", accountId)
 	}
 	return transfers, nil
 }

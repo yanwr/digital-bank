@@ -33,11 +33,11 @@ func (aC *AuthController) Login(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, exceptions.ThrowBadRequestError("invalid data to login"))
 		return
 	}
-	accountDto, errS := aC.authService.IsCredentialValid(login.Cpf, login.Secret)
-	if err != nil {
+	accountId, errS := aC.authService.IsCredentialValid(login.Cpf, login.Secret)
+	if errS != nil {
 		c.AbortWithStatusJSON(errS.Status, errS)
 		return
 	}
-	generatedToken := aC.jwtService.GenerateToken(accountDto.Id)
+	generatedToken := aC.jwtService.GenerateToken(accountId)
 	c.JSON(http.StatusOK, dtos.LoginResponseDTO{Token: generatedToken})
 }

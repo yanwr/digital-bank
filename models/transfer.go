@@ -9,11 +9,11 @@ import (
 
 type Transfer struct {
 	gorm.Model
-	Id                   string    `json:"id" gorm:"type:uuid;primaryKey"`
-	AccountOriginId      string    `json:"account_origin_id"`
-	AccountDestinationId string    `json:"account_destination_id"`
-	Amount               float64   `json:"amount"`
-	CreatedAt            time.Time `json:"created_at"`
+	Id                   string    `json:"id,omitempty" gorm:"type:uuid;primaryKey"`
+	AccountOriginId      string    `json:"account_origin_id,omitempty"`
+	AccountDestinationId string    `json:"account_destination_id,omitempty"`
+	Amount               float64   `json:"amount,omitempty"`
+	CreatedAt            time.Time `json:"created_at,omitempty"`
 }
 
 func NewTransfer(accountDestinationId string, accountOriginId string, amout float64) *Transfer {

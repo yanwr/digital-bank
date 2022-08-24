@@ -15,12 +15,12 @@ var REGEX_CPF string = `[0-9]{3}\.?[0-9]{3}\.?[0-9]{3}\-?[0-9]{2}`
 
 type Account struct {
 	gorm.Model
-	Id        string    `json:"id" gorm:"type:uuid;primaryKey"`
-	Name      string    `json:"name"`
-	Cpf       string    `json:"cpf" gorm:"unique"`
-	Secret    string    `json:"secret"`
-	Balance   float64   `json:"balance"`
-	CreatedAt time.Time `json:"created_at"`
+	Id        string    `json:"id,omitempty" gorm:"type:uuid;primaryKey"`
+	Name      string    `json:"name,omitempty"`
+	Cpf       string    `json:"cpf,omitempty" gorm:"unique"`
+	Secret    string    `json:"secret,omitempty"`
+	Balance   float64   `json:"balance,omitempty"`
+	CreatedAt time.Time `json:"created_at,omitempty"`
 }
 
 func NewAccount(name string, cpf string, secret string, balance float64) (*Account, error) {
