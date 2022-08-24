@@ -1,7 +1,7 @@
 package repositories
 
 import (
-	"fmt"
+	"errors"
 	"yanwr/digital-bank/models"
 
 	"gorm.io/gorm"
@@ -27,11 +27,9 @@ func NewAccountRepository(conDB *gorm.DB) IAccountRepository {
 
 func (aR *AccountRepository) FindByCpf(cpf string) (*models.Account, error) {
 	var account *models.Account
-	if err := aR.connectionDB.Find(&account, "cpf = ?", cpf).Error; err != nil {
-		return nil, err
-	}
-	if account == nil {
-		return nil, nil
+	aR.connectionDB.Find(&account, "cpf = ?", cpf)
+	if len(account.Id) == 0 {
+		return nil, errors.New("not found Account with cpf " + cpf)
 	}
 	return account, nil
 }
@@ -40,7 +38,7 @@ func (aR *AccountRepository) FindById(id string) (*models.Account, error) {
 	var account *models.Account
 	aR.connectionDB.First(&account, "id = ?", id)
 	if account == nil {
-		return nil, fmt.Errorf("not found Account with id = %s", id)
+		return nil, errors.New("not found Account with id = " + id)
 	}
 	return account, nil
 }
@@ -49,7 +47,7 @@ func (aR *AccountRepository) FindAll() ([]*models.Account, error) {
 	var accounts []*models.Account
 	aR.connectionDB.Find(&accounts)
 	if accounts == nil {
-		return nil, fmt.Errorf("error to find all accounts")
+		return nil, errors.New("error to find all accounts")
 	}
 	return accounts, nil
 }

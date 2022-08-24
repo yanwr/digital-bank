@@ -12,7 +12,7 @@ import (
 
 type ITransferService interface {
 	FindAllByAccountId(accountId string) ([]*dtos.TransferResponseDTO, *exceptions.StandardError)
-	CreateTransferTo(transferDto dtos.TransferRequestDTO, accountOriginId string) (*dtos.TransferResponseDTO, *exceptions.StandardError)
+	CreateTransferTo(transferDto *dtos.TransferRequestDTO, accountOriginId string) (*dtos.TransferResponseDTO, *exceptions.StandardError)
 	updateBalance(accountOriginId string, accountDestinationId string, amount float64) *exceptions.StandardError
 }
 
@@ -41,7 +41,7 @@ func (tS *TransferService) FindAllByAccountId(accountId string) ([]*dtos.Transfe
 	return tS.transferMapper.ToDtos(transfers), nil
 }
 
-func (tS *TransferService) CreateTransferTo(transferDto dtos.TransferRequestDTO, accountOriginId string) (*dtos.TransferResponseDTO, *exceptions.StandardError) {
+func (tS *TransferService) CreateTransferTo(transferDto *dtos.TransferRequestDTO, accountOriginId string) (*dtos.TransferResponseDTO, *exceptions.StandardError) {
 	errS := tS.updateBalance(accountOriginId, transferDto.AccountDestinationId, transferDto.Amount)
 	if errS != nil {
 		return nil, errS
@@ -61,20 +61,20 @@ func (tS *TransferService) updateBalance(accountOriginId string, accountDestinat
 		return errS
 	}
 
-	accountOrigin, errS := tS.accountService.FindById(accountOriginId)
+	accountOriginDto, errS := tS.accountService.FindById(accountOriginId)
 	if errS != nil {
 		return errS
 	}
 
-	accountDestination, errS := tS.accountService.FindById(accountDestinationId)
+	accountDestinationDto, errS := tS.accountService.FindById(accountDestinationId)
 	if errS != nil {
 		return errS
 	}
 
-	accountOrigin.Balance = accountOrigin.Balance - amount
-	accountDestination.Balance = accountDestination.Balance + amount
+	accountOriginDto.Balance = accountOriginDto.Balance - amount
+	accountDestinationDto.Balance = accountDestinationDto.Balance + amount
 
-	tS.accountService.UpdateAccount(accountOrigin)
-	tS.accountService.UpdateAccount(accountDestination)
+	tS.accountService.UpdateAccount(accountOriginDto)
+	tS.accountService.UpdateAccount(accountDestinationDto)
 	return nil
 }

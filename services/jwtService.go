@@ -59,6 +59,5 @@ func (jS *JwtService) ValidateToken(tokenString string) (*dtos.Payload, error) {
 	if !ok {
 		return nil, errors.New("invalid token")
 	}
-
 	return payload, nil
 }
